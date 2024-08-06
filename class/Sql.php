@@ -7,18 +7,18 @@ class Sql extends PDO
         $this->conn = new PDO("mysql:host=localhost;dbname=adminwork", "root", "");
     }
 
+    private function setParam($statement, $key, $value){
+        $statement->bindParam($key, $value);
+    }
     
     private function setParams($statement, $parameters = array()){
         foreach ($parameters as $key => $value) {
             $statement->bindParam($key, $value);
-            $this->setParam($key, $value);
+            $this->setParam($statement, $key, $value);
         }
 
     }
 
-    private function setParam($statement, $key, $value){
-        $statement->bindParam($key, $value);
-    }
     
     
     public function newQuery($rawQuery, $params = array()){
