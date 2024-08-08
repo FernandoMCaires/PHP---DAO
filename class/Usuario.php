@@ -48,11 +48,7 @@ class Usuario{
         ));
 
         if(count($results) > 0){
-            $row = $results[0];
-            $this->setIdusuario($row['id_usuario']);
-            $this->setNome($row['nome']);
-            $this->setEmail($row['email']);
-            $this->setSenha($row['senha']);
+            $this->setData($results[0]);
         } else {
             echo "Nenhum resultado encontrado para o ID: $id";
         }
@@ -84,15 +80,64 @@ class Usuario{
         ));
 
         if(count($results) > 0){
-            $row = $results[0];
-            $this->setIdusuario($row['id_usuario']);
-            $this->setNome($row['nome']);
-            $this->setEmail($row['email']);
-            $this->setSenha($row['senha']);
+            $this->setData($results[0]);
         }else{
             throw new Exception("Login e/ou senha invalidos", 1);
         }
     }
+
+    public function setData($data){
+        $this->setIdusuario($data['id_usuario']);
+        $this->setNome($data['nome']);
+        $this->setEmail($data['email']);
+        $this->setSenha($data['senha']);
+    }
+
+    public function insert(){
+
+        $sql = new Sql();
+
+        $results = $sql->select("CALL sp_usuarios_credenciais_insert(:LOGIN, :PASSWORD, :EMAIL)", array(
+        ':LOGIN'=>$this->getNome(),
+        ':PASSWORD'=>$this->getSenha(),
+        ':EMAIL'=>$this->getEmail()
+        ));
+
+        if (count($results) >0 ) {
+            $this->setData($results[0]);
+        }
+    }
+
+    public function update($login, $email, $password){
+    $this->setNome($login);
+    $this->setSenha($password);
+    $this->setEmail($email);
+
+
+    $sql = new Sql();
+    $sql->newQuery("UPDATE usuarios_credenciais SET nome = :NOME, senha = :PASSWORD, email = :EMAIL WHERE id_usuario = :ID", array(
+        ":NOME"=>$this->getNome(),
+        ":PASSWORD"=>$this->getSenha(),
+        ":EMAIL"=>$this->getEmail(),
+        ":ID"=>$this->getIdusuario()
+    ));
+}
+
+public function delete(){
+    $sql = new Sql();
+    $sql->newQuery("DELETE FROM usuarios_credenciais WHERE id_usuario = :ID", array(
+      ':ID'=>$this->getIdusuario()
+    ));
+
+    $this->setIdusuario(0);
+    $this->setNome("");
+    $this->setSenha("");
+    $this->setEmail("");
+
+}
+
+    
+
 
     public function __toString(){
         return json_encode(array(
